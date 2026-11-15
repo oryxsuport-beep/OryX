@@ -43,6 +43,26 @@ async function searchJamendo(query: string): Promise<YouTubeVideo[]> {
       sourceUrl: song.shareurl || 'https://www.jamendo.com'
     }));
 }
+type AudiusTrack = { id: string; title: string; duration: number; artwork?: { '480x480'?: string; '150x150'?: string }; user?: { name?: string }; permalink?: string; is_streamable?: boolean; is_delete?: boolean; access?: { stream?: boolean } };
+async function searchAudius(query: string): Promise<YouTubeVideo[]> {
+  const endpoint = new URL('https://api.audius.co/v1/tracks/search');
+  endpoint.searchParams.set('query', query);
+  endpoint.searchParams.set('limit', '35');
+  endpoint.searchParams.set('app_name', 'OryX');
+  const response = await fetch(endpoint.toString());
+  if (!response.ok) throw new Error('Audius indisponível.');
+  const payload = await response.json() as { data?: AudiusTrack[] };
+  return (payload.data || []).filter(track => track.id && track.is_streamable !== false && track.is_delete !== true && track.access?.stream !== false)
+    .map(track => ({
+      id: `audius-${track.id}`,
+      title: track.title,
+      artist: track.user?.name || 'Artista independente',
+      duration: durationLabel(track.duration),
+      thumbnail: track.artwork?.['480x480'] || track.artwork?.['150x150'] || '',
+      audioUrl: `https://api.audius.co/v1/tracks/${encodeURIComponent(track.id)}/stream?app_name=OryX`,
+      sourceUrl: track.permalink || 'https://audius.co'
+    }));
+}
 async function searchItunes(query: string): Promise<YouTubeVideo[]> {
   const endpoint = new URL('https://itunes.apple.com/search');
   endpoint.searchParams.set('term', query);
@@ -65,7 +85,7 @@ async function searchItunes(query: string): Promise<YouTubeVideo[]> {
 export async function searchYouTube(query: string): Promise<YouTubeVideo[]> {
   const term = query.trim();
   if (!term) return [];
-  if (JAMENDO_CLIENT_ID) {
+  try {\n    const tracks = await searchAudius(term);\n    if (tracks.length) return tracks;\n  } catch { /* fall back to other providers */ }\n  if (JAMENDO_CLIENT_ID) {
     try {
       const tracks = await searchJamendo(term);
       if (tracks.length) return tracks;
