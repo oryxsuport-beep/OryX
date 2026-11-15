@@ -1,3 +1,6 @@
+import { classifyPlayerSwipe } from "./services/gesture";
+import { createTimeCapsule, openTimeCapsule, type TimeCapsule } from "./services/timeCapsule";
+import { calculateAchievements } from "./services/achievements";
 import { createBackup, parseBackup } from "./services/backup";
 import { clampSeekTime } from "./services/seek";
 import { searchLibrary } from "./services/librarySearch";
@@ -34,6 +37,7 @@ const makeTrack = (file: File): Track => ({
 
 export default function App() {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const swipeStart = useRef<{x:number;y:number}|null>(null);
   const cleanupRef = useRef<(() => void) | null>(null);
   const tracksRef = useRef<Track[]>([]);
   const playRequestRef = useRef(0);
@@ -97,11 +101,22 @@ export default function App() {
   const [displayName, setDisplayName] = useState(() => { try { return localStorage.getItem("oryx:displayName") || "OryX Listener"; } catch { return "OryX Listener"; } });
   const [playCounts, setPlayCounts] = useState<Record<string, number>>(() => { try { return JSON.parse(localStorage.getItem("oryx:plays") || "{}"); } catch { return {}; } });
   const [swipeIndex, setSwipeIndex] = useState(0);
+  const [gestures, setGestures] = useState(() => { try { return localStorage.getItem("oryx:gestures") !== "off"; } catch { return true; } });
+  const [amoled, setAmoled] = useState(() => { try { return localStorage.getItem("oryx:amoled") === "on"; } catch { return false; } });
+  const [batterySaver, setBatterySaver] = useState(() => { try { return localStorage.getItem("oryx:batterySaver") === "on"; } catch { return false; } });
+  const [capsuleTitle, setCapsuleTitle] = useState("");
+  const [capsuleDate, setCapsuleDate] = useState("");
+  const [capsules, setCapsules] = useState<TimeCapsule[]>(() => { try { return JSON.parse(localStorage.getItem("oryx:capsules") || "[]"); } catch { return []; } });
+  const achievements = useMemo(() => calculateAchievements(playCounts, liked, 0), [playCounts, liked]);
   const [statusMessage, setStatusMessage] = useState("");
   const replay = useMemo(() => buildReplay(tracks, playCounts, liked), [tracks, playCounts, liked]);
   const drops = useMemo(() => dailyDrop(tracks, liked, recent), [tracks, liked, recent]);
   const vibeTracks = useMemo(() => chooseVibe(tracks, vibe), [tracks, vibe]);
 
+  useEffect(() => { localStorage.setItem("oryx:gestures", gestures ? "on" : "off"); }, [gestures]);
+  useEffect(() => { localStorage.setItem("oryx:amoled", amoled ? "on" : "off"); }, [amoled]);
+  useEffect(() => { localStorage.setItem("oryx:batterySaver", batterySaver ? "on" : "off"); }, [batterySaver]);
+  useEffect(() => { localStorage.setItem("oryx:capsules", JSON.stringify(capsules)); }, [capsules]);
   const lyricLines: LyricLine[] = useMemo(
     () => parseSyncedLyrics(lyrics?.syncedLyrics ?? null),
     [lyrics]
@@ -429,7 +444,7 @@ export default function App() {
   }, [playing]);
 
   return (
-    <main className={`app-shell ${motion ? "motion-on" : "motion-off"}`} style={{"--red": accent} as React.CSSProperties}>
+    <main className={`app-shell ${motion && !batterySaver ? "motion-on" : "motion-off"} ${amoled ? "oryx-amoled" : ""}`} style={{"--red": accent} as React.CSSProperties}>
       <audio ref={audioRef} preload="metadata" onEnded={() => { setPlaying(false); if (!repeat && tracks.length > 1) stepTrack(1, true); }} />
       <header className="topbar">
         <span className="wordmark" aria-label="OryX">Ory<span>X</span></span>
@@ -553,6 +568,21 @@ export default function App() {
           <label className="identity-toggle"><input type="checkbox" checked={motion} onChange={event => setMotion(event.target.checked)}/> Motion Player: efeitos suaves</label>
           <p className="source-note">Perfil local. Sincronização entre dispositivos e autenticação serão adicionadas quando houver backend configurado.</p>
         </section>
+        <section className="universe-panel"><div className="section-heading"><span>CONTROLES + BATERIA</span></div>
+          <label className="identity-toggle"><input type="checkbox" checked={gestures} onChange={e => setGestures(e.target.checked)}/> Gestos horizontais no player</label>
+          <label className="identity-toggle"><input type="checkbox" checked={amoled} onChange={e => setAmoled(e.target.checked)}/> Preto AMOLED</label>
+          <label className="identity-toggle"><input type="checkbox" checked={batterySaver} onChange={e => setBatterySaver(e.target.checked)}/> Economia de bateria (reduz efeitos)</label>
+        </section>
+        <section className="universe-panel"><div className="section-heading"><span>TIME CAPSULE</span></div>
+          <p className="source-note">Guarde sua lista atual para desbloquear em uma data futura. Reimporte os arquivos de áudio quando necessário.</p>
+          <input value={capsuleTitle} onChange={e => setCapsuleTitle(e.target.value)} placeholder="Nome da cápsula" aria-label="Nome da cápsula" />
+          <input type="datetime-local" value={capsuleDate} onChange={e => setCapsuleDate(e.target.value)} aria-label="Data de abertura" />
+          <button type="button" onClick={() => { try { const c = createTimeCapsule(capsuleTitle, tracks.map(t=>t.id), new Date(capsuleDate).getTime()); setCapsules(v=>[...v,c]); setCapsuleTitle(""); setCapsuleDate(""); setStatusMessage("Cápsula criada!"); } catch(e) { setStatusMessage(e instanceof Error ? e.message : "Data inválida"); } }}>Criar cápsula com a biblioteca</button>
+          {capsules.map(c => <div key={c.id} className="source-note"><strong>{c.title}</strong> — {new Date(c.unlockAt).toLocaleString("pt-BR")} — {openTimeCapsule(c) ? `${c.trackIds.length} faixas desbloqueadas` : "Bloqueada"} <button type="button" onClick={()=>setCapsules(v=>v.filter(x=>x.id!==c.id))}>Excluir</button></div>)}
+        </section>
+        <section className="universe-panel"><div className="section-heading"><span>CONQUISTAS</span></div>
+          <p className="source-note">{achievements.length} de 4 conquistas: {achievements.join(", ") || "Ouça sua primeira música para começar"}. Exploração de gêneros será ativada em uma versão futura.</p>
+        </section>
         <section className="universe-panel"><div className="section-heading"><span>BACKUP + PRIVACIDADE</span></div>
           <p className="source-note">Exporte suas preferências, favoritas e estatísticas para um arquivo JSON. Arquivos de áudio não são incluídos.</p>
           <div className="chip-row">
@@ -583,7 +613,7 @@ export default function App() {
         <section className="universe-panel"><div className="section-heading"><span><HeartHandshake size={17}/> ORYX SUPPORT</span></div><p className="source-note">OryX gratuito e sem anúncios. Doações voluntárias serão habilitadas após definir um provedor de pagamento e verificar as regras da loja.</p></section>
       </section>}
       {section === "listen" && <section className="player-card">
-        <div className="cover">
+        <div className="cover" onTouchStart={e => { if (!gestures) return; const t=e.touches[0]; swipeStart.current={x:t.clientX,y:t.clientY}; }} onTouchEnd={e => { const start=swipeStart.current; swipeStart.current=null; if (!start || !gestures || !e.changedTouches.length) return; const t=e.changedTouches[0]; const direction=classifyPlayerSwipe(t.clientX-start.x,t.clientY-start.y); if (direction!=="none") stepTrack(direction==="next" ? 1 : -1, true); }}>
           <div className="cover-glow" />
           <Disc3 size={86} strokeWidth={1.1} />
           <span>ORYX</span>

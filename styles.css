@@ -220,3 +220,6 @@ button:focus-visible, input:focus-visible {
 .seek-shortcuts { display:flex; align-items:center; justify-content:center; gap:16px; margin: 8px 0; }
 .seek-shortcuts button { border:1px solid rgba(255,255,255,.18); border-radius:18px; padding:8px 16px; background:rgba(255,255,255,.06); color:inherit; cursor:pointer; }
 .seek-shortcuts button:disabled { opacity:.4; cursor:not-allowed; }
+
+.oryx-amoled { background: #000 !important; }
+.oryx-amoled .player-card, .oryx-amoled .lower-card, .oryx-amoled .universe-panel { background: #080808 !important; }
