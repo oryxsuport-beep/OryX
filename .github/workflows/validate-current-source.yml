@@ -1,0 +1,33 @@
+name: OryX - validar fonte atual
+on:
+  push:
+    branches: [dev/validacao-compilacao]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Extract current source archive
+        run: |
+          mkdir -p extracted
+          unzip -q OryX-Android-Source.zip -d extracted
+          find extracted -maxdepth 4 -type f | head -60
+      - name: Find package.json and run build
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest=$(find extracted -name package.json -not -path '*/node_modules/*' -print -quit)
+          if [[ -z "$manifest" ]]; then
+            echo "::error::The repository archive does not contain package.json. Upload the OryX 3.0 source before a full build can run."
+            exit 1
+          fi
+          cd "$(dirname "$manifest")"
+          npm install --no-audit --no-fund
+          npm run build
