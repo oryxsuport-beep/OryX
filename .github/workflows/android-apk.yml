@@ -28,16 +28,24 @@ jobs:
       - name: Preparar Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Extrair projeto
+      - name: Extrair e localizar projeto
         run: |
           unzip -o OryX-Android-Source.zip -d app
+          PACKAGE=$(find app -name package.json -print -quit)
+          if [ -z "$PACKAGE" ]; then
+            echo "package.json não encontrado no ZIP"
+            exit 1
+          fi
+          PROJECT_DIR=$(dirname "$PACKAGE")
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Projeto encontrado em: $PROJECT_DIR"
 
       - name: Instalar dependências
-        working-directory: app
         run: npm install
+        working-directory: ${{ env.PROJECT_DIR }}
 
       - name: Compilar aplicativo
-        working-directory: app
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
           npm run build
           npx cap add android
@@ -50,4 +58,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: OryX-APK
-          path: app/android/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ env.PROJECT_DIR }}/android/app/build/outputs/apk/debug/app-debug.apk
