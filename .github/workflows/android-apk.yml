@@ -26,7 +26,7 @@ jobs:
           node-version: '22'
 
       - name: Preparar Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Extrair projeto
         run: |
