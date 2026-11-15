@@ -36,6 +36,10 @@ jobs:
         run: npm run build
       - name: Create Android project
         run: npx cap add android
+      - name: Generate OryX launcher icons
+        run: |
+          python3 -m pip install --user Pillow
+          python3 scripts/generate-android-icons.py
       - name: Sync Android
         run: npx cap sync android
       - name: Build debug APK
