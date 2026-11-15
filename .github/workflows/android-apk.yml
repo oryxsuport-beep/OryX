@@ -1,0 +1,53 @@
+
+name: Gerar APK OryX
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar projeto
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Preparar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Extrair projeto
+        run: |
+          unzip -o OryX-Android-Source.zip -d app
+
+      - name: Instalar dependências
+        working-directory: app
+        run: npm install
+
+      - name: Compilar aplicativo
+        working-directory: app
+        run: |
+          npm run build
+          npx cap add android
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: OryX-APK
+          path: app/android/app/build/outputs/apk/debug/app-debug.apk
