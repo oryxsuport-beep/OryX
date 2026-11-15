@@ -85,7 +85,11 @@ async function searchItunes(query: string): Promise<YouTubeVideo[]> {
 export async function searchYouTube(query: string): Promise<YouTubeVideo[]> {
   const term = query.trim();
   if (!term) return [];
-  try {\n    const tracks = await searchAudius(term);\n    if (tracks.length) return tracks;\n  } catch { /* fall back to other providers */ }\n  if (JAMENDO_CLIENT_ID) {
+  try {
+    const tracks = await searchAudius(term);
+    if (tracks.length) return tracks;
+  } catch { /* fall back to other providers */ }
+  if (JAMENDO_CLIENT_ID) {
     try {
       const tracks = await searchJamendo(term);
       if (tracks.length) return tracks;
