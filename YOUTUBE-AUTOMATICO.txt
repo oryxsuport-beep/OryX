@@ -1,0 +1,1 @@
+youtubei.js já está em youtube-api/package.json. No deploy do Render: Build Command = npm install; Start Command = npm start. A instalação e inicialização são automáticas após a configuração inicial do serviço.
