@@ -326,6 +326,18 @@ export default function App() {
 
   function openYouTubeTrack(video: YouTubeVideo) {
     // Discovery only: playback stays with the authorized platform.
+    if (video.audioUrl) {
+      const track: Track = {
+        id: video.id,
+        title: video.title,
+        artist: video.artist,
+        src: video.audioUrl,
+        kind: "url"
+      };
+      setTracks(previous => previous.some(item => item.id === track.id) ? previous : [...previous, track]);
+      void playTrack(track);
+      return;
+    }
     window.open(video.sourceUrl || `https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`, "_blank", "noopener,noreferrer");
   }
 
@@ -478,7 +490,7 @@ export default function App() {
               {youtubeBusy ? <LoaderCircle className="spin" size={18} /> : <Search size={18} />}
             </button>
           </div>
-          <p className="source-note">Descubra músicas no catálogo online e abra na plataforma de origem. Reprodução completa depende da plataforma autorizada.</p>
+          <p className="source-note">Ouça músicas licenciadas do Jamendo no OryX quando a API estiver configurada. Outras faixas abrem na plataforma de origem.</p>
           {youtubeResults.length > 0 && <div className="youtube-results">
             {youtubeResults.map(video => <button className="youtube-result" key={video.id}
               onClick={() => openYouTubeTrack(video)}>
@@ -493,7 +505,7 @@ export default function App() {
       }
       {section === "discover" && <section className="home-card">
         <div className="section-heading"><span><ListMusic size={17} /> DESCUBRA MÚSICAS</span></div>
-        <p className="source-note">Resultados para descoberta; reprodução externa no YouTube.</p>
+        <p className="source-note">Músicas licenciadas podem tocar no OryX; outros resultados abrem na plataforma de origem.</p>
         <div className="discovery-genres" aria-label="Gêneros musicais">
           {["Brasil", "Pop", "Rap", "Eletrônica", "Rock"].map(genre =>
             <button key={genre} className={genre === discoveryGenre ? "selected" : ""}
@@ -509,7 +521,7 @@ export default function App() {
           : homeError ? <p className="home-status">{homeError} Você ainda pode ouvir arquivos locais ou URLs de áudio autorizadas.</p>
           : homeVideos.length === 0 ? <p className="home-status">Nenhuma música encontrada no momento.</p>
           : <div className="home-tracks">{uniqueCatalog(homeVideos).filter(video => !showFavorites || liked.includes(`youtube-${video.id}`)).map(video =>
-              <button key={video.id} className="home-track" onClick={() => openYouTubeTrack(video)} title="Abrir no YouTube">
+              <button key={video.id} className="home-track" onClick={() => openYouTubeTrack(video)} title={video.audioUrl ? "Ouvir no OryX" : "Abrir na plataforma de origem"}>
                 {video.thumbnail ? <img src={video.thumbnail} alt="" loading="lazy" /> : <span className="home-placeholder"><Music2 size={20} /></span>}
                 <span className="home-track-info"><strong>{video.title}</strong><small>{video.artist}</small></span>
                 <span className="home-duration">{video.duration}</span>
