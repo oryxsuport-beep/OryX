@@ -308,7 +308,7 @@ export default function App() {
 
   async function searchYouTubeTracks() {
     if (!youtubeQuery.trim()) {
-      setError("Digite o nome da música para pesquisar no YouTube.");
+      setError("Digite o nome da música para pesquisar.");
       return;
     }
     setYoutubeBusy(true);
@@ -318,7 +318,7 @@ export default function App() {
       setYoutubeResults(uniqueCatalog(results));
       if (!results.length) setError("Nenhum vídeo encontrado.");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Erro na busca do YouTube.");
+      setError(cause instanceof Error ? cause.message : "Erro na busca de músicas.");
     } finally {
       setYoutubeBusy(false);
     }
@@ -326,7 +326,7 @@ export default function App() {
 
   function openYouTubeTrack(video: YouTubeVideo) {
     // Discovery only: playback stays with the authorized platform.
-    window.open(`https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`, "_blank", "noopener,noreferrer");
+    window.open(video.sourceUrl || `https://www.youtube.com/watch?v=${encodeURIComponent(video.id)}`, "_blank", "noopener,noreferrer");
   }
 
   function addUrl() {
@@ -469,16 +469,16 @@ export default function App() {
           <button onClick={addUrl} aria-label="Reproduzir URL"><Play size={18} /></button>
         </div>
         <div className="youtube-search">
-          <div className="section-heading"><span><Search size={16} /> DESCOBRIR NO YOUTUBE</span></div>
+          <div className="section-heading"><span><Search size={16} /> PESQUISAR MÚSICAS ONLINE</span></div>
           <div className="url-row">
             <input value={youtubeQuery} onChange={event => setYoutubeQuery(event.target.value)}
               onKeyDown={event => { if (event.key === "Enter") void searchYouTubeTracks(); }}
-              placeholder="Nome da música ou artista..." aria-label="Buscar música no YouTube" />
-            <button onClick={() => void searchYouTubeTracks()} disabled={youtubeBusy} aria-label="Buscar no YouTube">
+              placeholder="Nome da música ou artista..." aria-label="Buscar músicas online" />
+            <button onClick={() => void searchYouTubeTracks()} disabled={youtubeBusy} aria-label="Buscar músicas online">
               {youtubeBusy ? <LoaderCircle className="spin" size={18} /> : <Search size={18} />}
             </button>
           </div>
-          <p className="source-note">Descubra vídeos e abra no YouTube. O OryX não extrai o áudio desses vídeos.</p>
+          <p className="source-note">Descubra músicas no catálogo online e abra na plataforma de origem. Reprodução completa depende da plataforma autorizada.</p>
           {youtubeResults.length > 0 && <div className="youtube-results">
             {youtubeResults.map(video => <button className="youtube-result" key={video.id}
               onClick={() => openYouTubeTrack(video)}>
