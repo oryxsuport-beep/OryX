@@ -559,6 +559,16 @@ export default function App() {
           <div className="replay-grid"><div><strong>{replay.totalPlays}</strong><small>reproduções iniciadas</small></div><div><strong>{liked.length}</strong><small>favoritas</small></div><div><strong>{tracks.length}</strong><small>faixas na biblioteca</small></div></div>
           <p className="source-note">Mais ouvida: {replay.topTrack?.title || "Ainda não há dados"}. Estatísticas ficam neste dispositivo.</p>
         </section>
+        <section className="universe-panel">
+          <div className="section-heading"><span><Globe2 size={17}/> CONECTAR SERVIÇOS</span></div>
+          <p className="source-note">Acesse suas contas nos sites oficiais. A conexão direta ao OryX ainda depende de autorização OAuth e aprovação das APIs de cada plataforma.</p>
+          <div className="chip-row">
+            <button type="button" onClick={() => window.open("https://accounts.spotify.com/", "_blank", "noopener,noreferrer")}>Spotify ↗</button>
+            <button type="button" onClick={() => window.open("https://accounts.google.com/", "_blank", "noopener,noreferrer")}>YouTube ↗</button>
+            <button type="button" onClick={() => window.open("https://www.deezer.com/login", "_blank", "noopener,noreferrer")}>Deezer ↗</button>
+          </div>
+          <p className="source-note">Status: ainda não conectado. O OryX não recebe nem armazena suas senhas. A reprodução de cada serviço segue as regras e anúncios da plataforma ou do seu plano.</p>
+        </section>
         <section className="universe-panel"><div className="section-heading"><span><Palette size={17}/> ORYX IDENTITY</span></div>
           <label className="identity-label">Nome de exibição<input maxLength={40} value={displayName} onChange={event => setDisplayName(event.target.value)}/></label>
           <p className="source-note">Cor do OryX</p><div className="chip-row">{["#ff3038", "#ae56ff", "#28c58b", "#f2a33a", "#2f8cff"].map(color => <button key={color} aria-label={`Escolher cor ${color}`} aria-pressed={accent === color} onClick={() => setAccent(color)} style={{background: color, width: 35, height: 35, border: accent === color ? "2px solid white" : "2px solid transparent"}} />)}</div>
