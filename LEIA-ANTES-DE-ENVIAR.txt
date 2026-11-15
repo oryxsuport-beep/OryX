@@ -1,0 +1,47 @@
+ORYX 3.0 - ARQUIVOS RESTANTES
+
+ATENÇÃO: Este ZIP é plano para facilitar a seleção, mas NÃO pode ser enviado como está para a raiz do GitHub e compilar corretamente.
+Cada arquivo com __ no nome precisa ser colocado no caminho original, trocando __ por /.
+Exemplo: src__services__audio.ts -> src/services/audio.ts
+Os arquivos src__App.tsx, src__main.tsx etc. precisam substituir os que foram enviados incorretamente na raiz.
+
+MAPA:
+.gitignore  ->  .gitignore (Pendente)
+.env.example  ->  .env.example (Pendente)
+tests__smartNext.test.mjs  ->  tests/smartNext.test.mjs (Pendente)
+tests__librarySearch.test.mjs  ->  tests/librarySearch.test.mjs (Pendente)
+tests__catalog.test.mjs  ->  tests/catalog.test.mjs (Pendente)
+tests__backup.test.mjs  ->  tests/backup.test.mjs (Pendente)
+tests__seek.test.mjs  ->  tests/seek.test.mjs (Pendente)
+tests__newFeatures.test.mjs  ->  tests/newFeatures.test.mjs (Pendente)
+src__App.tsx  ->  src/App.tsx (Já enviado fora da pasta correta; precisa ficar neste caminho)
+src__styles.css  ->  src/styles.css (Já enviado fora da pasta correta; precisa ficar neste caminho)
+src__types.ts  ->  src/types.ts (Já enviado fora da pasta correta; precisa ficar neste caminho)
+src__main.tsx  ->  src/main.tsx (Já enviado fora da pasta correta; precisa ficar neste caminho)
+assets__README.md  ->  assets/README.md (Já enviado fora da pasta correta; precisa ficar neste caminho)
+assets__icon.png  ->  assets/icon.png (Pendente)
+android-native__OryXSystemVolumePlugin.java  ->  android-native/OryXSystemVolumePlugin.java (Já enviado fora da pasta correta; precisa ficar neste caminho)
+public__apple-touch-icon.png  ->  public/apple-touch-icon.png (Pendente)
+public__manifest.webmanifest  ->  public/manifest.webmanifest (Pendente)
+public__oryx-logo.svg  ->  public/oryx-logo.svg (Pendente)
+public__icon.png  ->  public/icon.png (Pendente)
+scripts__install-native-volume.py  ->  scripts/install-native-volume.py (Pendente)
+scripts__enable-dex.py  ->  scripts/enable-dex.py (Pendente)
+youtube-api__server.js  ->  youtube-api/server.js (Pendente)
+youtube-api__README.md  ->  youtube-api/README.md (Já enviado fora da pasta correta; precisa ficar neste caminho)
+youtube-api__package.json  ->  youtube-api/package.json (Já enviado fora da pasta correta; precisa ficar neste caminho)
+.github__workflows__web-checks.yml  ->  .github/workflows/web-checks.yml (Pendente)
+.github__workflows__android-apk.yml  ->  .github/workflows/android-apk.yml (Pendente)
+src__services__smartNext.ts  ->  src/services/smartNext.ts (Pendente)
+src__services__seek.ts  ->  src/services/seek.ts (Pendente)
+src__services__achievements.ts  ->  src/services/achievements.ts (Pendente)
+src__services__librarySearch.ts  ->  src/services/librarySearch.ts (Pendente)
+src__services__youtube.ts  ->  src/services/youtube.ts (Pendente)
+src__services__gesture.ts  ->  src/services/gesture.ts (Pendente)
+src__services__timeCapsule.ts  ->  src/services/timeCapsule.ts (Pendente)
+src__services__audio.ts  ->  src/services/audio.ts (Pendente)
+src__services__catalog.ts  ->  src/services/catalog.ts (Pendente)
+src__services__universe.ts  ->  src/services/universe.ts (Pendente)
+src__services__backup.ts  ->  src/services/backup.ts (Pendente)
+src__services__lrclib.ts  ->  src/services/lrclib.ts (Pendente)
+src__services__systemVolume.ts  ->  src/services/systemVolume.ts (Pendente)
